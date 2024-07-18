@@ -6,7 +6,8 @@ exports.register = async (req, res) => {
   const { username, email, password } = req.body;
 
   const existingUser = await User.findOne({ email });
-  if (existingUser) return res.status(400).send("User already exists");
+  if (existingUser)
+    return res.status(400).send({ message: "User already exists" });
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -17,7 +18,7 @@ exports.register = async (req, res) => {
   });
 
   await user.save();
-  res.status(201).send("User created");
+  res.status(201).send({ success: true, message: "User created successfully" });
 };
 
 exports.login = async (req, res) => {
@@ -29,6 +30,6 @@ exports.login = async (req, res) => {
   const validPassword = await bcrypt.compare(password, user.password);
   if (!validPassword) return res.status(400).send("Invalid email or password");
 
-  const token = jwt.sign({ _id: user._id }, "jwt_token");
-  res.send({ token });
+  const jwt_token = jwt.sign({ _id: user._id }, "jwt_token");
+  res.send({ status: true, message: "User login successfully", jwt_token });
 };
